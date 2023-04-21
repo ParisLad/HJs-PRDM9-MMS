@@ -1,0 +1,39 @@
+library(BSgenome.Hsapiens.UCSC.hg19.masked)
+genome <- BSgenome.Hsapiens.UCSC.hg19.masked
+x <- genome$chr1  
+myfile <- paste("C:\\Work\\GeneScreening\\chr1.bed", sep="") 
+active(masks(x)) <- TRUE
+active(masks(x))["RM"] <- FALSE
+hjtable <- read.table("C:\\Work\\GeneScreening\\hj.txt", header = TRUE) 
+prdm9table <- read.table("C:\\Work\\GeneScreening\\prdm9.txt", header = TRUE) 
+	for (j in 1:1024) # Kostas comment insert for start end for prdm9
+	{
+		print(paste("Run HJ no. ", i, hjtable$HJ[i]))
+		print(paste("Run PRDM9 no. ", j, prdm9table$PRDM9[j]))
+		Lpattern <- toString(hjtable$HJ[i])
+		Rpattern <- toString(prdm9table$PRDM9[j])
+		M1 <- matchLRPatterns(Lpattern, Rpattern, 1000, x, max.Lmismatch=0, max.Rmismatch=0, with.Lindels=FALSE, with.Rindels=FALSE, Lfixed=TRUE, Rfixed=TRUE)
+		print(paste("M1 = ", M1))
+		if (length(M1) != 0)
+		{
+			sink(myfile, append=TRUE)
+			chrvalue <- "chr1"
+			for (k in 1:length(M1))
+			{
+				cat(chrvalue)
+				cat("\t")
+				cat(start(M1[k]))
+				cat("\t")
+				cat(end(M1[k]))
+				cat("\t")
+				cat(toString(hjtable$HJ[i]))
+				cat("\t")
+				cat(toString(prdm9table$PRDM9[j]))
+				cat("\t")
+				cat(toString(end(M1[k]) - start(M1[k])))
+				cat("\n")
+			}
+			sink()
+		}
+	}
+}
